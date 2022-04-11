@@ -2,15 +2,51 @@ import React from "react";
 import "./AuthForm.css";
 import GoogleLogo from "../../Assets/Image/google.svg";
 import { useNavigate } from "react-router-dom";
-
+import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import auth from "../../Firebase/firebase.init";
+const provider = new GoogleAuthProvider();
 const Login = () => {
   const navigate = useNavigate();
+
+  const googleAuth=()=>{
+    signInWithPopup(auth, provider)
+    .then((result) => {
+      const user = result.user;
+      console.log(user)
+      navigate("/")
+        }).catch((error) => {
+   
+      const errorMessage = error.message;
+      console.log(errorMessage)
+  
+
+    });
+  }
+
+  const handleLogin=event=>{
+    event.preventDefault()
+    const email=event.target.email.value;
+    const password=event.target.password.value;
+    const auth = getAuth();
+signInWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+ navigate('/')
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log(errorMessage)
+  })
+  }
 
   return (
     <div className='auth-form-container '>
       <div className='auth-form'>
         <h1>Login</h1>
-        <form>
+        <form onSubmit={handleLogin}>
           <div className='input-field'>
             <label htmlFor='email'>Email</label>
             <div className='input-wrapper'>
@@ -23,7 +59,7 @@ const Login = () => {
               <input type='password' name='password' id='password' />
             </div>
           </div>
-          <button type='submit' className='auth-form-submit'>
+          <button  type='submit' className='auth-form-submit'>
             Login
           </button>
         </form>
@@ -37,7 +73,7 @@ const Login = () => {
           <div className='line-right' />
         </div>
         <div className='input-wrapper'>
-          <button className='google-auth'>
+          <button onClick={googleAuth} className='google-auth'>
             <img src={GoogleLogo} alt='' />
             <p> Continue with Google </p>
           </button>
